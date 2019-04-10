@@ -28,6 +28,15 @@ abstract class GenericQueries {
         }.toString()
     }
 
+    fun deleteById(table: String, idIdentifier: String): String {
+        return object : SQL() {
+            init {
+                DELETE_FROM(table)
+                WHERE(CaseFormat.UPPER_CAMEL.to(CaseFormat.UPPER_UNDERSCORE, idIdentifier) + "=#{$idIdentifier}")
+            }
+        }.toString()
+    }
+
     fun executeFunction(function: String, vararg parameters: String): String {
         return object : SQL() {
             init {
