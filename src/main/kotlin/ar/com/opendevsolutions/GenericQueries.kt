@@ -17,6 +17,14 @@ abstract class GenericQueries {
     val dualTable = "DUAL"
     val defaultFormat = "yyyy-MM-dd"
 
+    fun getAll(projection: String, table: String): String {
+        return object : SQL() {
+            init {
+                SELECT(projection)
+                FROM(table)
+            }
+        }.toString()
+    }
 
     fun getByStringAttribute(projection: String, table: String, attributeName: String, attribute: String): String {
         return object : SQL() {
