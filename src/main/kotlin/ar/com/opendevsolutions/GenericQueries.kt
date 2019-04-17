@@ -11,11 +11,18 @@ import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.util.Arrays
 
+
 abstract class GenericQueries {
     val allColumns = "*"
     private val isLikeSentence = " like #{attribute} || '%'"
     val dualTable = "DUAL"
     val defaultFormat = "yyyy-MM-dd"
+
+    companion object {
+        fun equalCondition(attribute: String, value: String) : String {
+            return "$attribute = '$value'"
+        }
+    }
 
 
     fun getByStringAttribute(projection: String, table: String, attributeName: String, attribute: String): String {
@@ -27,6 +34,17 @@ abstract class GenericQueries {
             }
         }.toString()
     }
+
+    fun selectWhereEqual(projection: String, table: String, valuesAndConditions: Map<String, String>): String {
+        var result = SQL().SELECT(projection).FROM(table);
+        val mutableIterator = valuesAndConditions.iterator()
+        for (pair in mutableIterator){
+            result.WHERE(equalCondition(pair.key,pair.value))
+            if(mutableIterator.hasNext()){ result.AND()}
+        }
+        return result.toString()
+    }
+
 
     fun deleteById(table: String, idIdentifier: String): String {
         return object : SQL() {
@@ -90,7 +108,8 @@ abstract class GenericQueries {
             "java.lang.Integer" -> jdbcType = "INTEGER"
             "java.lang.Double" -> jdbcType = "INTEGER"
             "java.util.Date" -> jdbcType = "DATE"
-            else -> {}
+            else -> {
+            }
         }
         return jdbcType
     }
@@ -109,17 +128,17 @@ abstract class GenericQueries {
     }
 
     fun insertFromMap(tablaDomicilio: String,
-                                valuesToInsert: MutableMap<String, Any>,
-                                customFieldMapping: Map<String, String>,
-                                ignoredFields: List<String>): String {
+                      valuesToInsert: MutableMap<String, Any>,
+                      customFieldMapping: Map<String, String>,
+                      ignoredFields: List<String>): String {
         return insertFromMap(tablaDomicilio, valuesToInsert, customFieldMapping, ignoredFields, defaultFormat)
     }
 
     fun insertFromMap(tablaDomicilio: String,
-                                valuesToInsert: MutableMap<String, Any>,
-                                customFieldMapping: Map<String, String>,
-                                ignoredFields: List<String>,
-                                dateFormat: String): String {
+                      valuesToInsert: MutableMap<String, Any>,
+                      customFieldMapping: Map<String, String>,
+                      ignoredFields: List<String>,
+                      dateFormat: String): String {
         val statement = object : SQL() {
             init {
                 INSERT_INTO(tablaDomicilio)
